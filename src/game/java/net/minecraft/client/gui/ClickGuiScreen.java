@@ -206,13 +206,22 @@ public class ClickGuiScreen extends GuiScreen {
 
             drawRect(x, y, x + width, y + height, PANEL_BG);
 
-            fontRendererObj.drawString(category.name(), x + 4, y + 4, TEXT_COLOR);
+            String title = category.name();
+            if (category == com.isacofff.clientbase.Category.Hacks && !com.isacofff.clientbase.Client.INSTANCE.manager.hacksUnlocked) {
+                title = title + " (LOCKED)";
+            }
+            fontRendererObj.drawString(title, x + 4, y + 4, TEXT_COLOR);
 
             if (open) {
 
                 int offset = height;
 
                 for (Module module : Client.INSTANCE.manager.getModulesByCategory(category)) {
+
+                    // if Hacks category is locked, don't draw modules
+                    if (category == com.isacofff.clientbase.Category.Hacks && !com.isacofff.clientbase.Client.INSTANCE.manager.hacksUnlocked) {
+                        continue;
+                    }
 
                     drawRect(x, y + offset, x + width, y + offset + 14, module.isEnabled() ? MODULE_ENABLED : MODULE_DISABLED);
 
@@ -288,6 +297,14 @@ public class ClickGuiScreen extends GuiScreen {
 
         public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
             if (isHover(mouseX, mouseY, x, y, width, height)) {
+
+                // If Hacks panel and locked, open password screen on left click
+                if (category == com.isacofff.clientbase.Category.Hacks && !com.isacofff.clientbase.Client.INSTANCE.manager.hacksUnlocked) {
+                    if (mouseButton == 0) {
+                        ClickGuiScreen.this.mc.displayGuiScreen(new HacksPasswordScreen());
+                    }
+                    return;
+                }
 
                 if (mouseButton == 0) {
                     dragging = true;

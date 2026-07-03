@@ -1392,6 +1392,10 @@ public class Minecraft implements IThreadListener {
             }
         }
 
+        if (com.isacofff.clientbase.Client.INSTANCE != null && com.isacofff.clientbase.Client.INSTANCE.manager != null) {
+            com.isacofff.clientbase.Client.INSTANCE.manager.onTick();
+        }
+
         this.systemTime = getSystemTime();
     }
 

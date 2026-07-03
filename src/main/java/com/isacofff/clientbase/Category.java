@@ -6,5 +6,6 @@ public enum Category {
     Player,
     Movement,
     Render,
+    Hacks,
 }
 

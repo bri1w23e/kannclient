@@ -1185,6 +1185,28 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			this.disableLightmap();
 		}
 
+			// Player ESP: draw bounding boxes around other players when enabled
+			try {
+				if (com.isacofff.clientbase.Client.INSTANCE != null && com.isacofff.clientbase.Client.INSTANCE.manager != null) {
+					com.isacofff.clientbase.modules.Module espModule = com.isacofff.clientbase.Client.INSTANCE.manager.getModuleByName("PlayerESP");
+					if (espModule != null && espModule.isEnabled() && this.mc.world != null) {
+						Entity entity = this.mc.getRenderViewEntity();
+						double d0 = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) partialTicks;
+						double d1 = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) partialTicks;
+						double d2 = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) partialTicks;
+						for (Entity e : this.mc.world.playerEntities) {
+							if (e == this.mc.player) continue;
+							if (!(e instanceof EntityPlayer)) continue;
+							EntityPlayer p = (EntityPlayer) e;
+							AxisAlignedBB bb = p.getEntityBoundingBox().expandXyz(0.05D).offset(-d0, -d1, -d2);
+							RenderGlobal.func_181561_a(bb);
+						}
+					}
+				}
+			} catch (Throwable ex) {
+				// swallow any rendering errors to avoid crashing render loop
+			}
+
 		GlStateManager.matrixMode(5888);
 		GlStateManager.popMatrix();
 

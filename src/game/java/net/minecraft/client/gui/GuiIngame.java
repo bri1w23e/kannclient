@@ -342,6 +342,33 @@ public class GuiIngame extends Gui {
 			this.overlayPlayerList.renderPlayerlist(i, scoreboard, scoreobjective1);
 		}
 
+		// Draw Hacks arraylist (enabled hacks) in top-right corner
+		try {
+			if (com.isacofff.clientbase.Client.INSTANCE != null && com.isacofff.clientbase.Client.INSTANCE.manager != null) {
+				java.util.List<com.isacofff.clientbase.modules.Module> mods = com.isacofff.clientbase.Client.INSTANCE.manager.getModulesByCategory(com.isacofff.clientbase.Category.Hacks);
+				if (mods != null && !mods.isEmpty()) {
+					java.util.List<String> names = new java.util.ArrayList<>();
+					for (com.isacofff.clientbase.modules.Module m : mods) {
+						if (m.isEnabled()) names.add(m.getName());
+					}
+					if (!names.isEmpty()) {
+						// sort by width descending so list looks tidy
+						names.sort((a, b) -> Integer.compare(this.getFontRenderer().getStringWidth(b), this.getFontRenderer().getStringWidth(a)));
+						int margin = 4;
+						int x = i - margin;
+						int y = margin;
+						for (String s : names) {
+							int w = this.getFontRenderer().getStringWidth(s);
+							this.getFontRenderer().drawString(s, x - w, y, 0xFFFFFF);
+							y += this.getFontRenderer().FONT_HEIGHT + 2;
+						}
+					}
+				}
+			}
+		} catch (Throwable t) {
+			// swallow any errors to avoid HUD crashes
+		}
+
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.enableAlpha();
