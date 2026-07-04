@@ -1,72 +1,88 @@
-package com.isacofff.clientbase.modules.features;
+package com.isacofff.clientbase.modules.impl.combat;
 
-import com.isacofff.clientbase.modules.Module;
 import com.isacofff.clientbase.Category;
-import com.isacofff.clientbase.settings.Setting;
+import com.isacofff.clientbase.modules.Module;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBow;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemMinecart;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public class AutoInstaCart extends Module {
 
-    public Setting.BooleanSetting onlyWhenRiding = new Setting.BooleanSetting("OnlyWhenRiding", true);
-    public Setting.NumberSetting drawTicks = new Setting.NumberSetting("DrawTicks", 3, 1, 20, 1);
-
-    private boolean drawingBow = false;
-    private int bowTicks = 0;
+    private EntityArrow lastArrow = null;
 
     public AutoInstaCart() {
-        super("Auto Insta Cart", Category.Hacks);
-        this.description = "Instantly draw and release a bow while riding a minecart.";
-        settings.add(onlyWhenRiding);
-        settings.add(drawTicks);
+        super("AutoInstaCart", Category.Hacks, "InstaCarts for you");
+    }
+
+    private Minecraft mc() {
+        return Minecraft.getMinecraft();
     }
 
     @Override
     public void onUpdate() {
-        super.onUpdate();
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc.player == null || mc.world == null) return;
-        if (onlyWhenRiding.getValue()) {
-            if (!mc.player.isRiding() || !(mc.player.getRidingEntity() instanceof EntityMinecart)) {
-                reset();
-                return;
+        if (!isEnabled()) return;
+        if (mc().world == null || mc().player == null) return;
+
+        // detect arrow spawn
+        for (Object o : mc().world.loadedEntityList) {
+            if (o instanceof EntityArrow) {
+                EntityArrow arrow = (EntityArrow) o;
+
+                // new arrow detected
+                if (arrow != lastArrow && arrow.shootingEntity == mc().player) {
+                    lastArrow = arrow;
+                    handleArrow(arrow);
+                }
             }
         }
-        ItemStack current = mc.player.inventory.getCurrentItem();
-        if (current == null || current.func_190926_b() || !(current.getItem() instanceof ItemBow)) {
-            reset();
-            return;
-        }
-
-        if (!drawingBow) {
-            startDrawing(mc);
-            return;
-        }
-
-        bowTicks++;
-        if (bowTicks >= drawTicks.getValue()) {
-            releaseBow(mc);
-        }
     }
 
-    private void startDrawing(Minecraft mc) {
-        if (mc.player.isHandActive()) return;
-        mc.playerController.processRightClick(mc.player, mc.world, EnumHand.MAIN_HAND);
-        drawingBow = true;
-        bowTicks = 0;
+    private void handleArrow(EntityArrow arrow) {
+        // predict forward trajectory
+        Vec3d pos = arrow.getPositionVector();
+        Vec3d motion = new Vec3d(arrow.motionX, arrow.motionY, arrow.motionZ);
+
+        // project forward
+        Vec3d target = pos.add(motion.scale(3.0));
+
+        BlockPos railPos = new BlockPos(target);
+
+        // place rail
+        placeRail(railPos);
+
+        // place TNT minecart
+        placeTNTMinecart(railPos);
     }
 
-    private void releaseBow(Minecraft mc) {
-        mc.playerController.onStoppedUsingItem(mc.player);
-        drawingBow = false;
-        bowTicks = 0;
+    private void placeRail(BlockPos pos) {
+        try {
+            mc().playerController.processRightClickBlock(
+                    mc().player,
+                    mc().world,
+                    pos.down(),
+                    EnumFacing.UP,
+                    new Vec3d(0.5, 1, 0.5),
+                    EnumHand.MAIN_HAND
+            );
+        } catch (Throwable ignored) {}
     }
 
-    private void reset() {
-        drawingBow = false;
-        bowTicks = 0;
+    private void placeTNTMinecart(BlockPos pos) {
+        try {
+            mc().playerController.processRightClickBlock(
+                    mc().player,
+                    mc().world,
+                    pos,
+                    EnumFacing.UP,
+                    new Vec3d(0.5, 1, 0.5),
+                    EnumHand.MAIN_HAND
+            );
+        } catch (Throwable ignored) {}
     }
 }

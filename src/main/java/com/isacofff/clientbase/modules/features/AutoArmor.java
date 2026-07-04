@@ -3,7 +3,7 @@ package com.isacofff.clientbase.modules.features;
 import com.isacofff.clientbase.Settings.DoesNotExistException;
 import com.isacofff.clientbase.modules.Module;
 import com.isacofff.clientbase.Category;
-import com.isacofff.clientbase.settings.Setting;
+import com.isacofff.clientbase.settings.setting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;

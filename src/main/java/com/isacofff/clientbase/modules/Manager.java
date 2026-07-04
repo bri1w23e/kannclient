@@ -12,7 +12,6 @@ import com.isacofff.clientbase.modules.features.AutoArmor;
 import com.isacofff.clientbase.modules.features.AutoBlockHit;
 import com.isacofff.clientbase.modules.features.AutoGapple;
 import com.isacofff.clientbase.modules.features.FastPlace;
-import com.isacofff.clientbase.modules.features.InventoryCleaner;
 import com.isacofff.clientbase.modules.features.PingHUD;
 import com.isacofff.clientbase.modules.features.ReachAssist;
 import com.isacofff.clientbase.modules.features.Scaffold;
@@ -46,7 +45,6 @@ public class Manager {
     modules.add(new AutoBlockHit());
     modules.add(new AutoGapple());
     modules.add(new FastPlace());
-    modules.add(new InventoryCleaner());
     modules.add(new ReachAssist());
     modules.add(new Scaffold());
     modules.add(new StepAssist());
